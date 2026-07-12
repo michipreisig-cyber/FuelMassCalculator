@@ -3,18 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="apple-touch-icon" href="icon.png"
-    <title>Fuel & Mass Calc</title>
+    <title>Fuel Flow & Weight Converter</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; }
-        .container { max-width: 350px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-        .input-group { margin-bottom: 15px; }
-        label { display: inline-block; width: 90px; font-weight: bold; }
-        input { padding: 8px; width: 90px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-        .actions { margin-top: 20px; }
-        button { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; background-color: #dc3545; color: white; }
-        button:hover { background-color: #bd2130; }
-        h3 { margin-top: 25px; color: #2c3e50; font-size: 22px; border-top: 1px solid #eee; padding-top: 15px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f4f6f9; 
+            display: flex;
+            justify-content: center;
+        }
+        .container { 
+            width: 100%;
+            max-width: 350px; 
+            background: white; 
+            padding: 25px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); 
+        }
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 20px;
+            border-bottom: 2px solid #dc3545;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+        .input-group { 
+            margin-bottom: 15px; 
+            display: flex;
+            align-items: center;
+        }
+        label { 
+            display: inline-block; 
+            width: 140px; 
+            font-weight: bold; 
+            color: #4a5568;
+        }
+        input { 
+            padding: 8px; 
+            width: 90px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 16px; 
+            box-sizing: border-box;
+        }
+        .unit {
+            margin-left: 8px;
+            font-size: 14px;
+            color: #718096;
+            width: 55px;
+        }
+        .results-box {
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 25px;
+        }
+        .result-line {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .result-line:last-child {
+            margin-bottom: 0;
+        }
+        .highlight-liters {
+            color: #2b6cb0;
+        }
+        .highlight-kg {
+            color: #dc3545;
+        }
+        .actions { 
+            margin-top: 20px; 
+        }
+        button { 
+            padding: 8px 20px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            background-color: #dc3545; 
+            color: white; 
+            width: 100%;
+        }
+        button:hover { 
+            background-color: #bd2130; 
+        }
+        h3 { 
+            margin-top: 25px;
+            color: #2c3e50; 
+            font-size: 22px; 
+            border-top: 1px solid #eee;
+            padding-top: 15px; 
+        }
+        /* PDF / PRINT OPTIMIZATION LAYER */
+    @media print {
+        body { background: white; margin: 0; padding: 0; }
+        .container { max-width: 100%; box-shadow: none; padding: 0; }
+        button, .actions, .sub-calc-box { display: none !important; }
+        input[type="number"], input[type="text"] { border: none !important; background: transparent !important; padding: 0 !important; font-size: 16px; color: black !important; }
+        h3 { border-top: 1px solid #000; }
+    }
+
     </style>
 </head>
 <body>
@@ -22,9 +114,10 @@
 <div class="container">
     <h1>Fuel and Mass Calc <br>CS-23</h1>
     <p style="color: #666; font-size: 13px; margin-bottom: 20px;">No liability is assumed for calculations performed with this software! It's the Pilot's sole responsibility.</p>
+
+<h2>Flight Data:</h2>
     
-    <!-- Every time a user types, the 'oninput' event triggers the calculateSum function -->
-    <div class="input-group">
+<div class="input-group">
         <label for="txt1">A/C:</label>
         <input type="text" id="txt1" value="">
     </div>
@@ -33,57 +126,110 @@
         <label for="txt2">Date:</label>
         <input type="text" id="txt2" value="">
     </div>
-            
-    <h2>Fuel:</h2>
+
+<br>
+
+<!-- Start Converter: -->
+    
+    <h2>Fuel Flow Converter</h2>
+    
+    <div class="input-group">
+        <label for="time">Flight Time:</label>
+        <input type="number" id="time" step="any" placeholder="90" oninput="calculate()">
+        <span class="unit">minutes</span>
+    </div>
+    
+    <div class="input-group">
+        <label for="rate">Fuel Flow:</label>
+        <input type="number" id="rate" step="any" placeholder="40" oninput="calculate()">
+        <span class="unit">L/h</span>
+    </div>
+
+    <div class="input-group">
+        <label for="sg">Specific Gravity:</label>
+        <input type="number" id="sg" step="0.01" value="0.72" oninput="calculate()">
+        <span class="unit">kg/L</span>
+    </div>
+
+    <div class="results-box">
+        <div class="result-line">Liters: <span id="resLiters" class="highlight-liters">0.0</span> L</div>
+        <div class="result-line">Mass: <span id="resKg" class="highlight-kg">0.00</span> kg</div>
+    </div>
+    
+    <div class="actions">
+        <button onclick="resetFields0()">Reset Converter</button>
+    </div>
+    <br>
+    <br>
+
+<!-- Start Fuel Calculation: -->
+        
+ <h2>Fuel:</h2>
         
     <div class="input-group">
         <label for="num1">Taxi:</label>
-        <input type="number" id="num1" value="" oninput="calculateALL()"><label>L</label>
+        <input type="number" id="num1" value="" oninput="calculateALL()">
+        <span class="unit">L</span>
     </div>
     
     <div class="input-group">
         <label for="num2">Trip:</label>
-        <input type="number" id="num2" value="" oninput="calculateALL()"><label>L</label>
+        <input type="number" id="num2" value="" oninput="calculateALL()">
+        <span class="unit">L</span>
     </div>
 
     <div class="input-group">
         <label for="num3">Contingency:</label>
-        <input type="number" id="num3" value="" oninput="calculateALL()"><label>L</label>
+        <input type="number" id="num3" value="" oninput="calculateALL()">
+        <span class="unit">L</span>
+    </div>
+    <div
         <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Contingency: Greater of 5% Trip or 5min.</p>
     </div>
     
     <div class="input-group">
         <label for="num4">Additional:</label>
-        <input type="number" id="num4" value="" oninput="calculateALL()"><label>L</label>
+        <input type="number" id="num4" value="" oninput="calculateALL()">
+        <span class="unit">L</span>
     </div>
 
     <div class="input-group">
         <label for="num5">Alternate:</label>
-        <input type="number" id="num5" value="" oninput="calculateALL()"><label>L</label>
+        <input type="number" id="num5" value="" oninput="calculateALL()">
+        <span class="unit">L</span>
     </div>
 
     <div class="input-group">
         <label for="num6">FRF:</label>
-        <input type="number" id="num6" value="" oninput="calculateALL()"><label>L</label>
+        <input type="number" id="num6" value="" oninput="calculateALL()">
+        <span class="unit">L</span>
+    </div>
+    <div
         <p style="color: #666; font-size: 13px; margin-bottom: 20px;">FRF: 45min Holding Fuel (SEP/MEP).</p>
     </div>
 
     <div class="input-group">
         <label for="num7">Extra:</label>
-        <input type="number" id="num7" value="" oninput="calculateALL()"><label>L</label>
+        <input type="number" id="num7" value="" oninput="calculateALL()">
+        <span class="unit">L</span>
+    </div>
+    <div
         <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Extra: foreseeable events/weather/traffic congestion.</p>
     </div>
 
     <div class="input-group">
         <label for="num8">Discretionary:</label>
-        <input type="number" id="num8" value="" oninput="calculateALL()"><label>L</label>
+        <input type="number" id="num8" value="" oninput="calculateALL()">
+        <span class="unit">L</span>
+    </div>
+    <div
         <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Discretionary: At PIC's discretion.</p>
-
     </div>
 
     <div class="input-group">
-        <label for="num20">Specific Gravity (kg/l):</label>
-        <input type="number" id="num20" value="0.72" oninput="calculateALL()"><label>kg/L</label>
+        <label for="num20">Specific Gravity:</label>
+        <input type="number" id="num20" value="0.72" oninput="calculateALL()">
+        <span class="unit">kg/L</span>
     </div>
     
     <div class="actions">
@@ -92,44 +238,52 @@
 
     <h3 id="result2">Total Fuel: 0</h3>
     <h3 id="result">Total Fuel: 0</h3>
+
     <hr>
+    <br>
 
     <h2>Mass:</h2>
 
-    
     <div class="input-group">
         <label for="num51">BEM:</label>
-        <input type="number" id="num51" value="" oninput="calculate2()"><label>kg</label>
+        <input type="number" id="num51" value="" oninput="calculate2()">
+        <span class="unit">kg</span>
     </div>
     
     <div class="input-group">
         <label for="num53">Pilot:</label>
-        <input type="number" id="num53" value="" oninput="calculate2()"><label>kg</label>
+        <input type="number" id="num53" value="" oninput="calculate2()">
+        <span class="unit">kg</span>
     </div>
 
     <div class="input-group">
         <label for="num54">Co-Pilot:</label>
-        <input type="number" id="num54" value="" oninput="calculate2()"><label>kg</label>
+        <input type="number" id="num54" value="" oninput="calculate2()">
+        <span class="unit">kg</span>
     </div>
 
     <div class="input-group">
         <label for="num55">PAX 1:</label>
-        <input type="number" id="num55" value="" oninput="calculate2()"><label>kg</label>
+        <input type="number" id="num55" value="" oninput="calculate2()">
+        <span class="unit">kg</span>
     </div>
 
     <div class="input-group">
         <label for="num56">PAX 2:</label>
-        <input type="number" id="num56" value="" oninput="calculate2()"><label>kg</label>
+        <input type="number" id="num56" value="" oninput="calculate2()">
+        <span class="unit">kg</span>
     </div>
 
     <div class="input-group">
         <label for="num57">Baggage 1:</label>
-        <input type="number" id="num57" value="" oninput="calculate2()"><label>kg</label>
+        <input type="number" id="num57" value="" oninput="calculate2()">
+        <span class="unit">kg</span>
     </div>
-
+    
     <div class="input-group">
         <label for="num58">Baggage 2:</label>
-        <input type="number" id="num58" value="" oninput="calculate2()"><label>kg</label>
+        <input type="number" id="num58" value="" oninput="calculate2()">
+        <span class="unit">kg</span>
     </div>
 
     
@@ -140,11 +294,52 @@
     <div class="actions">
         <button onclick="resetFields2()">Reset Mass-Fields</button>
     </div>
+
+    <!-- MAIN PRINT ACTION BUTTON -->
+    <div style="margin-top: 25px;">
+        <button onclick="window.print()" style="background-color: #2b6cb0; width: 100%; padding: 12px; font-size: 16px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold;">
+        🖨️ Print / Save as PDF
+        </button>
+    </div>
+
     
 </div>
 
-
 <script>
+
+// Fuel Flow Converter:
+    
+function calculate() {
+    // Fetch input values, fallback to 0 if blank or invalid
+    let minutes = parseFloat(document.getElementById('time').value) || 0;
+    let rate = parseFloat(document.getElementById('rate').value) || 0;
+    let sg = parseFloat(document.getElementById('sg').value) || 0.72;
+    
+    // Convert minutes to hours for the L/h flow calculation
+    let hours = minutes / 60;
+    
+    // Calculate outputs
+    let liters = hours * rate;
+    let kg = liters * sg;
+    
+    // Update display instantly
+    document.getElementById('resLiters').innerText = liters.toFixed(1);
+    document.getElementById('resKg').innerText = kg.toFixed(2);
+}
+
+function resetFields0() {
+    document.getElementById('time').value = "";
+    document.getElementById('rate').value = "";
+    document.getElementById('sg').value = "0.72";
+    
+    // Refresh calculations back to zero
+    calculate();
+}
+
+
+    
+// Fuel and Mass Calculator:
+
 function calculateALL() {
     calculateSum();
     calculateTOF();
@@ -170,9 +365,9 @@ function calculateSum() {
     // Display result
     document.getElementById('result').innerText = "Total Fuel: " + total.toFixed(2) + " kg";
     document.getElementById('result2').innerText = "Total Fuel: " + total2.toFixed(0) + " Liters";
-}
+}    
 
-function calculateTOF() {
+    function calculateTOF() {
     let n2 = parseFloat(document.getElementById('num2').value) || 0;
     let n3 = parseFloat(document.getElementById('num3').value) || 0;
     let n4 = parseFloat(document.getElementById('num4').value) || 0;
@@ -237,6 +432,7 @@ function resetFields2() {
 
     document.getElementById('Mass3').innerText = "Total Mass: 0" + " kg"
 }
+
 
 </script>
 
