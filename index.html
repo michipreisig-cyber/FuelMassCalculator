@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png"
     <title>Fuel & Mass Calc</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; }
@@ -15,10 +15,6 @@
         button { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; background-color: #dc3545; color: white; }
         button:hover { background-color: #bd2130; }
         h3 { margin-top: 25px; color: #2c3e50; font-size: 22px; border-top: 1px solid #eee; padding-top: 15px; }
-        
-        /* Style for the new sub-calculator block */
-        .sub-calc-box { border: 1px dashed #cbd5e1; padding: 12px; border-radius: 6px; margin-top: 5px; margin-bottom: 20px; background-color: #f8fafc; }
-        .sub-calc-title { font-size: 13px; font-weight: bold; color: #64748b; display: block; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -27,6 +23,7 @@
     <h1>Fuel and Mass Calc <br>CS-23</h1>
     <p style="color: #666; font-size: 13px; margin-bottom: 20px;">No liability is assumed for calculations performed with this software! It's the Pilot's sole responsibility.</p>
     
+    <!-- Every time a user types, the 'oninput' event triggers the calculateSum function -->
     <div class="input-group">
         <label for="txt1">A/C:</label>
         <input type="text" id="txt1" value="">
@@ -35,23 +32,6 @@
     <div class="input-group">
         <label for="txt2">Date:</label>
         <input type="text" id="txt2" value="">
-    </div>
-
-    <!-- NEW FUEL FLOW CALCULATOR BLOCK -->
-    <div class="sub-calc-box">
-        <span class="sub-calc-title">Fuel Flow Tool</span>
-        <div class="input-group" style="margin-bottom: 10px;">
-            <label for="flowTime">Time (h):</label>
-            <input type="number" id="flowTime" value="" oninput="calculateFlow()" placeholder="e.g. 1.5">
-        </div>
-        <div class="input-group" style="margin-bottom: 10px;">
-            <label for="flowRate">Liters/h:</label>
-            <input type="number" id="flowRate" value="" oninput="calculateFlow()" placeholder="e.g. 40">
-        </div>
-        <div style="font-size: 14px; font-weight: bold; color: #1e293b; border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 5px;">
-            Result: <span id="flowResultLiters" style="color: #dc3545;">0</span> L 
-            <span style="font-weight: normal; color: #64748b; font-size: 13px; margin-left: 5px;">(<span id="flowResultKg">0.00</span> kg)</span>
-        </div>
     </div>
             
     <h2>Fuel:</h2>
@@ -98,6 +78,7 @@
         <label for="num8">Discretionary:</label>
         <input type="number" id="num8" value="" oninput="calculateALL()"><label>L</label>
         <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Discretionary: At PIC's discretion.</p>
+
     </div>
 
     <div class="input-group">
@@ -109,11 +90,12 @@
         <button onclick="resetFields()">Reset Fuel-Fields</button>
     </div>
 
-    <h3 id="result2">Total Fuel: 0 Liters</h3>
-    <h3 id="result">Total Fuel: 0 kg</h3>
+    <h3 id="result2">Total Fuel: 0</h3>
+    <h3 id="result">Total Fuel: 0</h3>
     <hr>
 
     <h2>Mass:</h2>
+
     
     <div class="input-group">
         <label for="num51">BEM:</label>
@@ -149,9 +131,11 @@
         <label for="num58">Baggage 2:</label>
         <input type="number" id="num58" value="" oninput="calculate2()"><label>kg</label>
     </div>
+
     
-    <h4 id="TOFcalc">TOF: 0 kg</h4>
-    <h3 id="Mass3">Total Mass: 0 kg</h3>
+    <h4 id="TOFcalc">TOF: 0</h4>
+
+    <h3 id="Mass3">Total Mass: 0</h3>
 
     <div class="actions">
         <button onclick="resetFields2()">Reset Mass-Fields</button>
@@ -159,15 +143,16 @@
     
 </div>
 
+
 <script>
 function calculateALL() {
     calculateSum();
     calculateTOF();
     calculate2();
-    calculateFlow(); // Keep mass calculation synced with any live density changes
 }
     
 function calculateSum() {
+    // Read the values from the fields. If empty, default to 0
     let n1 = parseFloat(document.getElementById('num1').value) || 0;
     let n2 = parseFloat(document.getElementById('num2').value) || 0;
     let n3 = parseFloat(document.getElementById('num3').value) || 0;
@@ -178,9 +163,11 @@ function calculateSum() {
     let n8 = parseFloat(document.getElementById('num8').value) || 0;
     let n20 = parseFloat(document.getElementById('num20').value) || 0.72;
     
+    // Calculate total
     let total = ((n1 + n2 + n3 + n4 + n5 + n6 + n7 + n8)*n20);
     let total2 = (n1 + n2 + n3 + n4 + n5 + n6 + n7 + n8);
     
+    // Display result
     document.getElementById('result').innerText = "Total Fuel: " + total.toFixed(2) + " kg";
     document.getElementById('result2').innerText = "Total Fuel: " + total2.toFixed(0) + " Liters";
 }
@@ -193,9 +180,10 @@ function calculateTOF() {
     let n6 = parseFloat(document.getElementById('num6').value) || 0;
     let n7 = parseFloat(document.getElementById('num7').value) || 0;
     let n8 = parseFloat(document.getElementById('num8').value) || 0;
-    let n20 = parseFloat(document.getElementById('num20').value) || 0.72;
+    let n20 = parseFloat(document.getElementById('num20').value) || 0;
     
     let TOF = ((n2 + n3 + n4 + n5 + n6 + n7 + n8)*n20);
+
     document.getElementById('TOFcalc').innerText = "TOF:" + " " + TOF.toFixed(1) + " kg";
 } 
 
@@ -207,7 +195,7 @@ function calculate2() {
     let n6 = parseFloat(document.getElementById('num6').value) || 0;
     let n7 = parseFloat(document.getElementById('num7').value) || 0;
     let n8 = parseFloat(document.getElementById('num8').value) || 0;
-    let n20 = parseFloat(document.getElementById('num20').value) || 0.72;
+    let n20 = parseFloat(document.getElementById('num20').value) || 0;
     let n51 = parseFloat(document.getElementById('num51').value) || 0;
     let n58 = parseFloat(document.getElementById('num58').value) || 0;
     let n53 = parseFloat(document.getElementById('num53').value) || 0;
@@ -215,9 +203,42 @@ function calculate2() {
     let n55 = parseFloat(document.getElementById('num55').value) || 0;
     let n56 = parseFloat(document.getElementById('num56').value) || 0;
     let n57 = parseFloat(document.getElementById('num57').value) || 0;
+
+    let Mass = (((n2 + n3 + n4 + n5 + n6 + n7 + n8)*n20) + (n51 + n58 + n53 + n54 + n55 + n56 + n57));
+
+    document.getElementById('Mass3').innerText = "Total Mass:" + Mass.toFixed(1) + " kg";
+}
     
-    let Mass = (((n2 + n3 + n4 + n5 + n6 + n7 + n8)*n20) + (n51 + n58 + n53 + n54 + n55 + n56 + n57)); 
-    document.getElementById('Mass3').innerText = "Total Mass: " + Mass.toFixed(1) + " kg";
+function resetFields() {
+    // Set all inputs back to 0
+    document.getElementById('num1').value = "";
+    document.getElementById('num2').value = "";
+    document.getElementById('num3').value = "";
+    document.getElementById('num4').value = "";
+    document.getElementById('num5').value = "";
+    document.getElementById('num6').value = "";
+    document.getElementById('num7').value = "";
+    document.getElementById('num8').value = "";
+    document.getElementById('num20').value = "0.72";
+    
+    // Update the displayed sum text
+    document.getElementById('result').innerText = "Total Fuel: 0" + " kg";
+    document.getElementById('result2').innerText = "Total Fuel: 0" + " Liters";
 }
 
-// NEW FUNCTION: Fuel flow block calculation
+function resetFields2() {
+    document.getElementById('num51').value = "";
+    document.getElementById('num53').value = "";
+    document.getElementById('num54').value = "";
+    document.getElementById('num55').value = "";
+    document.getElementById('num56').value = "";
+    document.getElementById('num57').value = "";
+    document.getElementById('num58').value = "";
+
+    document.getElementById('Mass3').innerText = "Total Mass: 0" + " kg"
+}
+
+</script>
+
+</body>
+</html>
