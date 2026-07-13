@@ -3,7 +3,7 @@ const CACHE_NAME = 'offline-app-v1';
 const ASSETS = [
   './',
   './index.html',
-  './icon.png' 
+  './icon2.png' 
 ];
 
 self.addEventListener('install', (e) => {
